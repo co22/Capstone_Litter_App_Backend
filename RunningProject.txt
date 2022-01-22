@@ -3,6 +3,6 @@ How to run the Flask project:
 1. Open the virtual environment venv (it should have flask and other necessary imports already installed).
 - Go to the venv folder and run activate to open the virtual environment. (venv) should be displayed above your username in the CLI.
 - Make sure the python interpreter version is set to 3.9.1.
-2. Run Flask by using the command: flask run
+2. Run Flask by using the command: flask run. Use flask run --host=0.0.0.0 to allow other devices (such as the android tablet) to connect to it.
 
 - Note: must be in virtual environment to run, since flask/imports are installed on there.

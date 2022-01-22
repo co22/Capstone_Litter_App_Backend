@@ -60,4 +60,4 @@ def home():
     return 'The current user is ' + current_user.username
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True) # Run with flask run --host=0.0.0.0 to connect to android device
