@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
@@ -40,6 +40,21 @@ def index():
     user = User.query.filter_by(username='Test').first()
     login_user(user)
     return 'You are now logged in!'
+
+@app.route('/getuser', methods=['POST'])
+def getuser():
+
+    data = str(request.get_data(as_text=True))
+    user = User.query.filter_by(username=data).first()
+    login_user(user)
+    return 'Successfully logged in: ' + data
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        return getuser()
+    else:
+        return logout()
 
 # Function: logout(): logs out a user.
 # Arguments: NA
