@@ -43,6 +43,10 @@ def index():
     login_user(user)
     return 'You are now logged in!'
 
+# Function getuser(): checks if post request data matches
+#                     a user in the database.
+# Arguments: NA
+# Returns: Successful login message and username.
 @app.route('/getuser', methods=['POST'])
 def getuser():
 
@@ -51,6 +55,9 @@ def getuser():
     login_user(user)
     return 'Successfully logged in: ' + data
 
+# Function login(): calls the method to log a user in.
+# Arguments: NA
+# Returns: getuser() or logout() function
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
