@@ -1,5 +1,7 @@
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 app = Flask(__name__)
@@ -74,5 +76,20 @@ def logout():
 def home():
     return 'The current user is ' + current_user.username
 
+# Function: adduser(): add a user to the database
+# Arguments: NA
+# Returns: the user that was added to the database.
+@app.route('/adduser', methods=['POST'])
+def adduser():
+    data = str(request.get_data(as_text=True))
+    newuser = User(username=data)
+
+    db.session.add(newuser)
+    db.session.commit()
+
+    return 'User added: ' + data
+
 if __name__ == '__main__':
     app.run(debug=True) # Run with flask run --host=0.0.0.0 to connect to android device
+    if not (db.engine.has_table('user')): # Create database if it does not exist
+        db.create_all()
