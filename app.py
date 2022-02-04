@@ -24,6 +24,7 @@ login_manager.init_app(app)
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True) # DO NOT CHANGE 'id' name
     username = db.Column(db.String(30), unique=True)
+    score = db.Column(db.Integer)
 
 # load_user(): loads a user object from the database given a user_id.
 # Arguments: user_id
@@ -75,4 +76,4 @@ def home():
     return 'The current user is ' + current_user.username
 
 if __name__ == '__main__':
-    app.run(debug=True) # Run with flask run --host=0.0.0.0 to connect to android device
+    app.run(debug=True, host='0.0.0.0') # Run with flask run --host=0.0.0.0 to connect to android device
