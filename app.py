@@ -53,7 +53,7 @@ def getuser():
     data = str(request.get_data(as_text=True))
     user = User.query.filter_by(username=data).first()
     login_user(user)
-    return 'Successfully logged in: ' + data
+    return data
 
 # Function login(): calls the method to log a user in.
 # Arguments: NA
@@ -94,7 +94,7 @@ def adduser():
     db.session.add(newuser)
     db.session.commit()
 
-    return 'User added: ' + data
+    return 'User added' + data
 
 if __name__ == '__main__':
     app.run(debug=True) # Run with flask run --host=0.0.0.0 to connect to android device
