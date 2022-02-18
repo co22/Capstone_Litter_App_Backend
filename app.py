@@ -57,7 +57,7 @@ def getuser():
     data = str(request.get_data(as_text=True))
     user = User.query.filter_by(username=data).first()
     login_user(user)
-    return 'Successfully logged in: ' + data
+    return data
 
 # Function login(): calls the method to log a user in.
 # Arguments: NA
@@ -98,7 +98,7 @@ def adduser():
     db.session.add(newuser)
     db.session.commit()
 
-    return 'User added: ' + data
+    return 'User added' + data
 
 if not (db.engine.has_table('user')): # Create database if it does not exist
     db.create_all()
