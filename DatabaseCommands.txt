@@ -7,3 +7,6 @@ flask db migrate -m "Initial migration."
 flask db upgrade
 
 flask db --help
+
+db.session.delete(user) //delete an existing user
+db.session.commit() //save changes

@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import create_engine
@@ -100,8 +100,20 @@ def adduser():
 
     return 'User added' + data
 
-if not (db.engine.has_table('user')): # Create database if it does not exist
-    db.create_all()
+# Function: addScore(): add points to the current user's score value
+# Arguments: NA
+# Returns: User's new score
+@app.route('/addscore', methods=['POST'])
+def addscore():
+    data = str(request.get_data(as_text=True))
+    data = int(data)
+    user = User.query.filter_by(username=current_user.username).first()
+    score = user.score
+    new_score = score + data
+    user.score = new_score
+    db.session.commit()
+
+    return str(user.score)
 
 if __name__ == '__main__':
     app.run(debug=True) # Run with flask run --host=0.0.0.0 to connect to android device
