@@ -1,0 +1,9 @@
+
+To update database table, use the command: flask db upgrade (needs Flask-Migrate package- pip install Flask-Migrate)
+
+Source: https://flask-migrate.readthedocs.io/en/latest/
+flask db init //add "migrations" folder"
+flask db migrate -m "Initial migration."
+flask db upgrade
+
+flask db --help

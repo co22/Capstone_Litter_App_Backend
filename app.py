@@ -1,5 +1,6 @@
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -17,6 +18,8 @@ app.config['SECRET_KEY'] = 'thisissecret'
 # Instantiate the database
 db = SQLAlchemy(app)
 
+migrate = Migrate(app, db)
+
 # Instantiate and initalize LoginManager
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -26,6 +29,7 @@ login_manager.init_app(app)
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True) # DO NOT CHANGE 'id' name
     username = db.Column(db.String(30), unique=True)
+    score = db.Column(db.Integer)
 
 # load_user(): loads a user object from the database given a user_id.
 # Arguments: user_id
@@ -96,7 +100,9 @@ def adduser():
 
     return 'User added: ' + data
 
+if not (db.engine.has_table('user')): # Create database if it does not exist
+    db.create_all()
+
 if __name__ == '__main__':
     app.run(debug=True) # Run with flask run --host=0.0.0.0 to connect to android device
-    if not (db.engine.has_table('user')): # Create database if it does not exist
-        db.create_all()
+    
