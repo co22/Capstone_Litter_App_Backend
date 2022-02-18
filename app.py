@@ -93,7 +93,7 @@ def home():
 @app.route('/adduser', methods=['POST'])
 def adduser():
     data = str(request.get_data(as_text=True))
-    newuser = User(username=data)
+    newuser = User(username=data, score=0)
 
     db.session.add(newuser)
     db.session.commit()
