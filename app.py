@@ -1,4 +1,5 @@
 import abc
+from posixpath import split
 from flask import Flask, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -38,6 +39,9 @@ class User(UserMixin, db.Model):
     goal1_progress = db.Column(db.Integer)
     goal2_progress = db.Column(db.Integer)
     goal3_progress = db.Column(db.Integer)
+    goal1_required = db.Column(db.Integer)
+    goal2_required = db.Column(db.Integer)
+    goal3_required = db.Column(db.Integer)
 
 # load_user(): loads a user object from the database given a user_id.
 # Arguments: user_id
@@ -124,37 +128,47 @@ def addscore():
     return str(user.score)
 
 # Function: updategoal(): replaces one of the tasks with the new version
-# Arguments: task number (1 2 or 3), string name of the task, completion status of the task
-# Returns: NA
-@app.route('/updateGoal/<int:taskno>/<string:name>/<int:status>', methods=['POST'])
-def updategoal(taskno, name, status):
+# Arguments: <goal num>_<message>_<goal progress>_<goal requirement> OR <goal num>_get
+# Returns: <goal num>_<message>_<goal progress>_<goal requirement>
+@app.route('/updateGoal', methods=['POST'])
+def updategoal():
     user = User.query.filter_by(username=current_user.username).first()
-    match taskno:
-        case 1:
-            user.goal1_id = name
-            user.goal1_progress = status
-        case 2:
-            user.goal2_id = name
-            user.goal2_progress = status
-        case 3:
-            user.goal3_id = name
-            user.goal3_progress = status
-    db.session.commit()
-    return 'nothing'
+    data = str(request.get_data(as_text=True))
 
-# Function: getgoal(): replaces one of the tasks with the new version
-# Arguments: task number (1 2 or 3)
-# Returns: A string containing the task within and completion status
-@app.route('/getGoal/<int:taskno>', methods=['POST'])
-def getgoal(taskno):
-    user = User.query.filter_by(username=current_user.username).first()
-    match taskno:
+    # Parse Post data ( requests data fragments are split on underscores )
+    data_list = data.split('_') # <-- Funny face lol
+    # Goal id
+    # Goal description
+    # Progress
+    # Total Needed
+
+    # Unify requests by using format "<goal number>_get" to return goal data
+    update = True
+    if data_list[1] == "get":
+        update = False
+
+    match data_list[0]:
         case 1:
-            return '{} {}'.format(user.goal1_id, user.goal1_progress)
+            if update:
+                user.goal1_id = data_list[1]
+                user.goal1_progress = data_list[2]
+                user.goal1_required = data_list[3]
+                db.session.commit()
+            return data_list[0] + "_" + user.goal1_id +  "_" + user.goal1_progress +  "_" + user.goal1_required
         case 2:
-            return '{} {}'.format(user.goal2_id, user.goal2_progress)
+            if update:
+                user.goal2_id = data_list[1]
+                user.goal2_progress = data_list[2]
+                user.goal2_required = data_list[3]
+                db.session.commit()
+            return data_list[0] +  "_" + user.goal2_id +  "_" + user.goal2_progress +  "_" + user.goal2_required
         case 3:
-            return '{} {}'.format(user.goal3_id, user.goal3_progress)
+            if update:
+                user.goal3_id = data_list[1]
+                user.goal3_progress = data_list[2]
+                user.goal3_required = data_list[3]
+                db.session.commit()
+            return data_list[0] +  "_" + user.goal3_id +  "_" + user.goal3_progress +  "_" + user.goal3_required
 
 if __name__ == '__main__':
     app.run(debug=True) # Run with flask run --host=0.0.0.0 to connect to android device
