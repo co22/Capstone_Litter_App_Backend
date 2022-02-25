@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user, AnonymousUserMixin
 
 app = Flask(__name__)
 
@@ -20,8 +20,14 @@ db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
 
+# Guest User
+class Anonymous(AnonymousUserMixin):
+  def __init__(self):
+    self.username = 'Guest'
+
 # Instantiate and initalize LoginManager
 login_manager = LoginManager()
+login_manager.anonymous_user = Anonymous
 login_manager.init_app(app)
 
 # Create user class that represents the database table.
@@ -36,16 +42,17 @@ class User(UserMixin, db.Model):
 # Returns: object from SQLAlchemy representing row number that matches the user_id
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    #return User.query.get(int(user_id))
+    return User.query.filter(User.id == user_id).first()
 
-# Function index(): logs in a user.
+# Function index(): Does nothing.
 # Arguments: NA
-# Returns: login message
+# Returns: NA
 @app.route('/')
 def index():
-    user = User.query.filter_by(username='Test').first()
-    login_user(user)
-    return 'You are now logged in!'
+    if 'username' in session:
+        return f'Logged in as {session["username"]}'
+    return 'You are not logged in'
 
 # Function getuser(): checks if post request data matches
 #                     a user in the database.
@@ -53,10 +60,9 @@ def index():
 # Returns: Successful login message and username.
 @app.route('/getuser', methods=['POST'])
 def getuser():
-
     data = str(request.get_data(as_text=True))
     user = User.query.filter_by(username=data).first()
-    login_user(user)
+    login_user(user,remember=True)
     return data
 
 # Function login(): calls the method to log a user in.
@@ -113,6 +119,14 @@ def addscore():
     user.score = new_score
     db.session.commit()
 
+    return str(user.score)
+
+# Function: getScore(): get the current user's score value
+# Arguments: NA
+# Returns: Currently logged in user's score
+@app.route('/getscore', methods=['POST'])
+def getscore():
+    user = User.query.filter_by(username=current_user.username).first()
     return str(user.score)
 
 if __name__ == '__main__':
