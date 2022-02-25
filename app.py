@@ -128,7 +128,7 @@ def addscore():
     return str(user.score)
 
 # Function: updategoal(): replaces one of the tasks with the new version
-# Arguments: <goal num>_<message>_<goal progress>_<goal requirement> OR <goal num>_get
+# Arguments: <goal num>_<message>_<goal progress>_<goal requirement> OR <goal num>_get OR <goal num>_add_<progress to add>
 # Returns: <goal num>_<message>_<goal progress>_<goal requirement>
 @app.route('/updateGoal', methods=['POST'])
 def updategoal():
@@ -142,10 +142,16 @@ def updategoal():
     # Progress
     # Total Needed
 
-    # Unify requests by using format "<goal number>_get" to return goal data
+    # Unify requests by using format:
+    # "<goal number>_get" to return goal data
+    # "<goal number>_add_<progress to add>" to update just the number progress on a goal and return
     update = True
+    add = False
     if data_list[1] == "get":
         update = False
+    if data_list[1] == 'add':
+        update = False
+        add = True
 
     match data_list[0]:
         case 1:
@@ -153,21 +159,27 @@ def updategoal():
                 user.goal1_id = data_list[1]
                 user.goal1_progress = data_list[2]
                 user.goal1_required = data_list[3]
-                db.session.commit()
+            if add:
+                user.goal1_progress += data_list[2]
+            db.session.commit()
             return data_list[0] + "_" + user.goal1_id +  "_" + user.goal1_progress +  "_" + user.goal1_required
         case 2:
             if update:
                 user.goal2_id = data_list[1]
                 user.goal2_progress = data_list[2]
                 user.goal2_required = data_list[3]
-                db.session.commit()
+            if add:
+                user.goal2_progress += data_list[2]
+            db.session.commit()
             return data_list[0] +  "_" + user.goal2_id +  "_" + user.goal2_progress +  "_" + user.goal2_required
         case 3:
             if update:
                 user.goal3_id = data_list[1]
                 user.goal3_progress = data_list[2]
                 user.goal3_required = data_list[3]
-                db.session.commit()
+            if add:
+                user.goal3_progress += data_list[2]
+            db.session.commit()
             return data_list[0] +  "_" + user.goal3_id +  "_" + user.goal3_progress +  "_" + user.goal3_required
 
 if __name__ == '__main__':
