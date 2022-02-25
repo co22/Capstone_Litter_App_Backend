@@ -1,9 +1,11 @@
+import abc
 from flask import Flask, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from markupsafe import escape
 
 app = Flask(__name__)
 
@@ -30,6 +32,12 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True) # DO NOT CHANGE 'id' name
     username = db.Column(db.String(30), unique=True)
     score = db.Column(db.Integer)
+    goal1_id = db.Column(db.String(30))
+    goal2_id = db.Column(db.String(30))
+    goal3_id = db.Column(db.String(30))
+    goal1_progress = db.Column(db.Integer)
+    goal2_progress = db.Column(db.Integer)
+    goal3_progress = db.Column(db.Integer)
 
 # load_user(): loads a user object from the database given a user_id.
 # Arguments: user_id
@@ -114,6 +122,39 @@ def addscore():
     db.session.commit()
 
     return str(user.score)
+
+# Function: updategoal(): replaces one of the tasks with the new version
+# Arguments: task number (1 2 or 3), string name of the task, completion status of the task
+# Returns: NA
+@app.route('/updateGoal/<int:taskno>/<string:name>/<int:status>', methods=['POST'])
+def updategoal(taskno, name, status):
+    user = User.query.filter_by(username=current_user.username).first()
+    match taskno:
+        case 1:
+            user.goal1_id = name
+            user.goal1_progress = status
+        case 2:
+            user.goal2_id = name
+            user.goal2_progress = status
+        case 3:
+            user.goal3_id = name
+            user.goal3_progress = status
+    db.session.commit()
+    return 'nothing'
+
+# Function: getgoal(): replaces one of the tasks with the new version
+# Arguments: task number (1 2 or 3)
+# Returns: A string containing the task within and completion status
+@app.route('/getGoal/<int:taskno>', methods=['POST'])
+def getgoal(taskno):
+    user = User.query.filter_by(username=current_user.username).first()
+    match taskno:
+        case 1:
+            return '{} {}'.format(user.goal1_id, user.goal1_progress)
+        case 2:
+            return '{} {}'.format(user.goal2_id, user.goal2_progress)
+        case 3:
+            return '{} {}'.format(user.goal3_id, user.goal3_progress)
 
 if __name__ == '__main__':
     app.run(debug=True) # Run with flask run --host=0.0.0.0 to connect to android device
