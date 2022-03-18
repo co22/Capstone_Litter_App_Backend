@@ -132,7 +132,8 @@ def addscore():
 # Returns: <goal num>_<message>_<goal progress>_<goal requirement>
 @app.route('/updateGoal', methods=['POST'])
 def updategoal():
-    user = User.query.filter_by(username=current_user.username).first()
+    #user = User.query.filter_by(username=current_user.username).first()
+    user=User.query.filter_by(username='Test').first() ## TODO update to work for all users
     data = str(request.get_data(as_text=True))
 
     # Parse Post data ( requests data fragments are split on underscores )
@@ -148,39 +149,40 @@ def updategoal():
     update = True
     add = False
     if data_list[1] == "get":
+        print("get")
         update = False
     if data_list[1] == 'add':
+        print("add")
         update = False
         add = True
 
-    match data_list[0]:
-        case 1:
-            if update:
-                user.goal1_id = data_list[1]
-                user.goal1_progress = data_list[2]
-                user.goal1_required = data_list[3]
-            if add:
-                user.goal1_progress += data_list[2]
-            db.session.commit()
-            return data_list[0] + "_" + user.goal1_id +  "_" + user.goal1_progress +  "_" + user.goal1_required
-        case 2:
-            if update:
-                user.goal2_id = data_list[1]
-                user.goal2_progress = data_list[2]
-                user.goal2_required = data_list[3]
-            if add:
-                user.goal2_progress += data_list[2]
-            db.session.commit()
-            return data_list[0] +  "_" + user.goal2_id +  "_" + user.goal2_progress +  "_" + user.goal2_required
-        case 3:
-            if update:
-                user.goal3_id = data_list[1]
-                user.goal3_progress = data_list[2]
-                user.goal3_required = data_list[3]
-            if add:
-                user.goal3_progress += data_list[2]
-            db.session.commit()
-            return data_list[0] +  "_" + user.goal3_id +  "_" + user.goal3_progress +  "_" + user.goal3_required
+    if data_list[0] == str(1):
+        if update:
+            user.goal1_id = data_list[1]
+            user.goal1_progress = data_list[2]
+            user.goal1_required = data_list[3]
+        if add:
+            user.goal1_progress += data_list[2]
+        db.session.commit()
+        return str(data_list[0]) + "_" + str(user.goal1_id) +  "_" + str(user.goal1_progress) +  "_" + str(user.goal1_required)
+    if data_list[0] == str(2):
+        if update:
+            user.goal2_id = data_list[1]
+            user.goal2_progress = data_list[2]
+            user.goal2_required = data_list[3]
+        if add:
+            user.goal2_progress += data_list[2]
+        db.session.commit()
+        return str(data_list[0]) +  "_" + str(user.goal2_id) +  "_" + str(user.goal2_progress) +  "_" + str(user.goal2_required)
+    if data_list[0] == str(3):
+        if update:
+            user.goal3_id = data_list[1]
+            user.goal3_progress = data_list[2]
+            user.goal3_required = data_list[3]
+        if add:
+            user.goal3_progress += data_list[2]
+        db.session.commit()
+        return str(data_list[0]) +  "_" + str(user.goal3_id) +  "_" + str(user.goal3_progress) +  "_" + str(user.goal3_required)
 
 if __name__ == '__main__':
     app.run(debug=True) # Run with flask run --host=0.0.0.0 to connect to android device
