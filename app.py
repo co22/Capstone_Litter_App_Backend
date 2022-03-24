@@ -36,13 +36,15 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True) # DO NOT CHANGE 'id' name
     username = db.Column(db.String(30), unique=True)
     score = db.Column(db.Integer)
+    petLevel = db.Column(db.Integer)
+    petCurrentExp = db.Column(db.Integer)
+    petCurrentFood = db.Column(db.Integer)
 
 # load_user(): loads a user object from the database given a user_id.
 # Arguments: user_id
 # Returns: object from SQLAlchemy representing row number that matches the user_id
 @login_manager.user_loader
 def load_user(user_id):
-    #return User.query.get(int(user_id))
     return User.query.filter(User.id == user_id).first()
 
 # Function index(): Does nothing.
@@ -51,7 +53,7 @@ def load_user(user_id):
 @app.route('/')
 def index():
     if 'username' in session:
-        return f'Logged in as {session["username"]}'
+        return 'Logged in as {session["username"]}'
     return 'You are not logged in'
 
 # Function getuser(): checks if post request data matches
@@ -99,12 +101,12 @@ def home():
 @app.route('/adduser', methods=['POST'])
 def adduser():
     data = str(request.get_data(as_text=True))
-    newuser = User(username=data, score=0)
+    newuser = User(username=data, score=0, petLevel=1, petCurrentExp=0, petCurrentFood=0)
 
     db.session.add(newuser)
     db.session.commit()
 
-    return 'User added' + data
+    return 'User added: ' + data
 
 # Function: addScore(): add points to the current user's score value
 # Arguments: NA
@@ -128,6 +130,75 @@ def addscore():
 def getscore():
     user = User.query.filter_by(username=current_user.username).first()
     return str(user.score)
+    
+# Function: getPetLevel(): get the pet level
+# Arguments: NA
+# Returns: Pet level
+@app.route('/getpetlevel', methods=['POST'])
+def getpetlevel():
+    user = User.query.filter_by(username=current_user.username).first()
+    return str(user.petLevel)
+
+# Function: getCurrentPetExp(): get the pet's current exp
+# Arguments: NA
+# Returns: Pet current exp value
+@app.route('/getpetcurrentexp', methods=['POST'])
+def getcurrentpetexp():
+    user = User.query.filter_by(username=current_user.username).first()
+    return str(user.petCurrentExp)
+
+# Function: getPetFood(): get the pet's current food count
+# Arguments: NA
+# Returns: Pet food count
+@app.route('/getpetcurrentfood', methods=['POST'])
+def getpetcurrentfood():
+    user = User.query.filter_by(username=current_user.username).first()
+    return str(user.petCurrentFood)
+
+# Function: updatePetLevel(): update the pet level
+# Arguments: NA
+# Returns: NA
+@app.route('/updatepetlevel', methods=['POST'])
+def updatepetlevel():
+    data = str(request.get_data(as_text=True))
+    data = int(data)
+    user = User.query.filter_by(username=current_user.username).first()
+    level = user.petLevel
+    new_level = level + data
+    user.petLevel = new_level
+    db.session.commit()
+
+    return str(user.petLevel)
+
+# Function: updatePetExp(): update the pet level
+# Arguments: NA
+# Returns: NA
+@app.route('/updatepetexp', methods=['POST'])
+def updatepetexp():
+    data = str(request.get_data(as_text=True))
+    data = int(data)
+    user = User.query.filter_by(username=current_user.username).first()
+    exp = user.petCurrentExp
+    new_exp = exp + data
+    user.petCurrentExp = new_exp
+    db.session.commit()
+
+    return str(user.petCurrentExp)
+
+# Function: updatePetFood(): update the pet level
+# Arguments: NA
+# Returns: NA
+@app.route('/updatepetfood', methods=['POST'])
+def updatepetfood():
+    data = str(request.get_data(as_text=True))
+    data = int(data)
+    user = User.query.filter_by(username=current_user.username).first()
+    food = user.petCurrentFood
+    new_food = food + data
+    user.petCurrentFood = new_food
+    db.session.commit()
+
+    return str(user.petCurrentFood)
 
 if __name__ == '__main__':
     app.run(debug=True) # Run with flask run --host=0.0.0.0 to connect to android device

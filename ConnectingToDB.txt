@@ -1,8 +1,11 @@
 How to connect to the login sqlite database:
 
+Run python first.
+(In python)
+
 1. import sqlite3
 
-2. conn sqlite3.connect('login.db')
+2. conn = sqlite3.connect('login.db')
 
 3. c = conn.cursor()
 
