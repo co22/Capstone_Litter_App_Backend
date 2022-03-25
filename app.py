@@ -1,4 +1,4 @@
-import abc
+from asyncio.windows_events import NULL
 from posixpath import split
 from flask import Flask, request, session
 from flask_sqlalchemy import SQLAlchemy
@@ -77,6 +77,9 @@ def getuser():
     data = str(request.get_data(as_text=True))
     user = User.query.filter_by(username=data).first()
     login_user(user,remember=True)
+    global currentUserName
+    currentUserName = (request.get_data(as_text=True))
+    print(currentUserName +'.')
     return data
 
 # Function login(): calls the method to log a user in.
@@ -96,6 +99,7 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
+    currentUserName = NULL
     logout_user()
     return 'You are now logged out!'
 
@@ -127,7 +131,7 @@ def adduser():
 def addscore():
     data = str(request.get_data(as_text=True))
     data = int(data)
-    user = User.query.filter_by(username=current_user.username).first()
+    user = User.query.filter_by(currentUserName).first()
     score = user.score
     new_score = score + data
     user.score = new_score
@@ -197,7 +201,7 @@ def updategoal():
 # Returns: Currently logged in user's score
 @app.route('/getscore', methods=['POST'])
 def getscore():
-    user = User.query.filter_by(username=current_user.username).first()
+    user = User.query.filter_by(username=currentUserName).first()
     return str(user.score)
     
 # Function: getPetLevel(): get the pet level
@@ -205,7 +209,7 @@ def getscore():
 # Returns: Pet level
 @app.route('/getpetlevel', methods=['POST'])
 def getpetlevel():
-    user = User.query.filter_by(username=current_user.username).first()
+    user = User.query.filter_by(username=currentUserName).first()
     return str(user.petLevel)
 
 # Function: getCurrentPetExp(): get the pet's current exp
@@ -213,7 +217,7 @@ def getpetlevel():
 # Returns: Pet current exp value
 @app.route('/getpetcurrentexp', methods=['POST'])
 def getcurrentpetexp():
-    user = User.query.filter_by(username=current_user.username).first()
+    user = User.query.filter_by(username=currentUserName).first()
     return str(user.petCurrentExp)
 
 # Function: getPetFood(): get the pet's current food count
@@ -221,7 +225,7 @@ def getcurrentpetexp():
 # Returns: Pet food count
 @app.route('/getpetcurrentfood', methods=['POST'])
 def getpetcurrentfood():
-    user = User.query.filter_by(username=current_user.username).first()
+    user = User.query.filter_by(username=currentUserName).first()
     return str(user.petCurrentFood)
 
 # Function: updatePetLevel(): update the pet level
@@ -231,7 +235,7 @@ def getpetcurrentfood():
 def updatepetlevel():
     data = str(request.get_data(as_text=True))
     data = int(data)
-    user = User.query.filter_by(username=current_user.username).first()
+    user = User.query.filter_by(username=currentUserName).first()
     level = user.petLevel
     new_level = level + data
     user.petLevel = new_level
@@ -246,7 +250,7 @@ def updatepetlevel():
 def updatepetexp():
     data = str(request.get_data(as_text=True))
     data = int(data)
-    user = User.query.filter_by(username=current_user.username).first()
+    user = User.query.filter_by(username=currentUserName).first()
     exp = user.petCurrentExp
     new_exp = exp + data
     user.petCurrentExp = new_exp
@@ -261,7 +265,7 @@ def updatepetexp():
 def updatepetfood():
     data = str(request.get_data(as_text=True))
     data = int(data)
-    user = User.query.filter_by(username=current_user.username).first()
+    user = User.query.filter_by(username=currentUserName).first()
     food = user.petCurrentFood
     new_food = food + data
     user.petCurrentFood = new_food
