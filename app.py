@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from markupsafe import escape
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user, AnonymousUserMixin
+import sqlite3, json
 
 app = Flask(__name__)
 
@@ -75,11 +76,10 @@ def index():
 @app.route('/getuser', methods=['POST'])
 def getuser():
     data = str(request.get_data(as_text=True))
-    user = User.query.filter_by(username=data).first()
-    login_user(user,remember=True)
+    #user = User.query.filter_by(username=data).first()
+    #login_user(user,remember=True)
     global currentUserName
     currentUserName = (request.get_data(as_text=True))
-    print(currentUserName +'.')
     return data
 
 # Function login(): calls the method to log a user in.
@@ -89,8 +89,8 @@ def getuser():
 def login():
     if request.method == 'POST':
         return getuser()
-    else:
-        return logout()
+    #else:
+        #return logout()
 
 # Function: logout(): logs out a user.
 # Arguments: NA
@@ -99,7 +99,7 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
-    currentUserName = NULL
+    currentUserName = 'Guest'
     logout_user()
     return 'You are now logged out!'
 
@@ -143,9 +143,8 @@ def addscore():
 # Arguments: <goal num>_<message>_<goal progress>_<goal requirement> OR <goal num>_get OR <goal num>_add_<progress to add>
 # Returns: <goal num>_<message>_<goal progress>_<goal requirement>
 @app.route('/updateGoal', methods=['POST'])
-def updategoal():
-    #user = User.query.filter_by(username=current_user.username).first()
-    user=User.query.filter_by(username='Test').first() ## TODO update to work for all users
+def updateGoal():
+    user = User.query.filter_by(username=currentUserName).first() ## TODO update to work for all users
     data = str(request.get_data(as_text=True))
 
     # Parse Post data ( requests data fragments are split on underscores )
@@ -272,6 +271,20 @@ def updatepetfood():
     db.session.commit()
 
     return str(user.petCurrentFood)
+
+# Function: getLeaderBoard(): format users from database into json format
+# Arguments: NA
+# Returns: JSON object containing all users in the database
+@app.route('/getleaderboard', methods=['POST'])
+def getleaderboard():
+    conn = sqlite3.connect('login.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    rows = c.execute('''SELECT * FROM user;''').fetchall()
+    conn.commit()
+    conn.close()
+    return json.dumps( [dict(ix) for ix in rows] )
+
 
 if __name__ == '__main__':
     app.run(debug=True) # Run with flask run --host=0.0.0.0 to connect to android device
