@@ -131,7 +131,7 @@ def adduser():
 def addscore():
     data = str(request.get_data(as_text=True))
     data = int(data)
-    user = User.query.filter_by(currentUserName).first()
+    user = User.query.filter_by(username=currentUserName).first()
     score = user.score
     new_score = score + data
     user.score = new_score
@@ -167,33 +167,36 @@ def updateGoal():
         update = False
         add = True
 
+    for each in data_list:
+        print (each)
+
     if data_list[0] == str(1):
         if update:
             user.goal1_id = data_list[1]
-            user.goal1_progress = data_list[2]
-            user.goal1_required = data_list[3]
+            user.goal1_progress = int(data_list[2])
+            user.goal1_required = int(data_list[3])
         if add:
-            user.goal1_progress += data_list[2]
+            user.goal1_progress = user.goal1_progress + int(data_list[2])
         db.session.commit()
-        return str(data_list[0]) + "_" + str(user.goal1_id) +  "_" + str(user.goal1_progress) +  "_" + str(user.goal1_required)
+        return "1_" + str(user.goal1_id) +  "_" + str(user.goal1_progress) +  "_" + str(user.goal1_required)
     if data_list[0] == str(2):
         if update:
             user.goal2_id = data_list[1]
-            user.goal2_progress = data_list[2]
-            user.goal2_required = data_list[3]
+            user.goal2_progress = int(data_list[2])
+            user.goal2_required = int(data_list[3])
         if add:
-            user.goal2_progress += data_list[2]
+            user.goal2_progress = user.goal2_progress + int(data_list[2])
         db.session.commit()
-        return str(data_list[0]) +  "_" + str(user.goal2_id) +  "_" + str(user.goal2_progress) +  "_" + str(user.goal2_required)
+        return "2_" + str(user.goal2_id) +  "_" + str(user.goal2_progress) +  "_" + str(user.goal2_required)
     if data_list[0] == str(3):
         if update:
             user.goal3_id = data_list[1]
-            user.goal3_progress = data_list[2]
-            user.goal3_required = data_list[3]
+            user.goal3_progress = int(data_list[2])
+            user.goal3_required = int(data_list[3])
         if add:
-            user.goal3_progress += data_list[2]
+            user.goal3_progress = user.goal3_progress + int(data_list[2])
         db.session.commit()
-        return str(data_list[0]) +  "_" + str(user.goal3_id) +  "_" + str(user.goal3_progress) +  "_" + str(user.goal3_required)
+        return "3_" + str(user.goal3_id) +  "_" + str(user.goal3_progress) +  "_" + str(user.goal3_required)
 
 # Function: getScore(): get the current user's score value
 # Arguments: NA
