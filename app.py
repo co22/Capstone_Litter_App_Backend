@@ -1,22 +1,19 @@
 from asyncio.windows_events import NULL
-from posixpath import split
 from flask import Flask, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
-from markupsafe import escape
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user, AnonymousUserMixin
+from flask_login import LoginManager, UserMixin, current_user, AnonymousUserMixin
 import sqlite3, json
 
 app = Flask(__name__)
 
-### Current functionality: Currently returns a successful login message to a hard-coded user in the database.
-### Logout by changing the url path to http://.../logout
+""" 
+Backend for Litter App Project.
+Contains functions for user account creation/login, retrieving user data and modifying user data.
+"""
 
 # Create a sqlite database at the specified location. (/// = relative path, //// = absolute path)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///login.db'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////mnt/c/sqlite/login.db'
 # Specify the secret key
 app.config['SECRET_KEY'] = 'thisissecret'
 # Instantiate the database
@@ -72,12 +69,10 @@ def index():
 # Function getuser(): checks if post request data matches
 #                     a user in the database.
 # Arguments: NA
-# Returns: Successful login message and username.
+# Returns: username
 @app.route('/getuser', methods=['POST'])
 def getuser():
     data = str(request.get_data(as_text=True))
-    #user = User.query.filter_by(username=data).first()
-    #login_user(user,remember=True)
     global currentUserName
     currentUserName = (request.get_data(as_text=True))
     return data
@@ -89,25 +84,19 @@ def getuser():
 def login():
     if request.method == 'POST':
         return getuser()
-    #else:
-        #return logout()
 
 # Function: logout(): logs out a user.
 # Arguments: NA
 # Returns: logout message
-# @login_required decorator protects the page from users who are not logged in
 @app.route('/logout')
-@login_required
 def logout():
     currentUserName = 'Guest'
-    logout_user()
     return 'You are now logged out!'
 
 # Function: shows information about the user.
 # Arguments: NA
 # Returns: the current user's username
 @app.route('/home')
-@login_required
 def home():
     return 'The current user is ' + current_user.username
 
@@ -229,7 +218,7 @@ def getpetcurrentfood():
 
 # Function: updatePetLevel(): update the pet level
 # Arguments: NA
-# Returns: NA
+# Returns: Pet level
 @app.route('/updatepetlevel', methods=['POST'])
 def updatepetlevel():
     data = str(request.get_data(as_text=True))
@@ -244,7 +233,7 @@ def updatepetlevel():
 
 # Function: updatePetExp(): update the pet level
 # Arguments: NA
-# Returns: NA
+# Returns: Pet current exp
 @app.route('/updatepetexp', methods=['POST'])
 def updatepetexp():
     data = str(request.get_data(as_text=True))
@@ -259,7 +248,7 @@ def updatepetexp():
 
 # Function: updatePetFood(): update the pet level
 # Arguments: NA
-# Returns: NA
+# Returns: Pet food count
 @app.route('/updatepetfood', methods=['POST'])
 def updatepetfood():
     data = str(request.get_data(as_text=True))
@@ -275,6 +264,7 @@ def updatepetfood():
 # Function: getLeaderBoard(): format users from database into json format
 # Arguments: NA
 # Returns: JSON object containing all users in the database
+# (Note: The returned JSON object is not sorted by score.)
 @app.route('/getleaderboard', methods=['POST'])
 def getleaderboard():
     conn = sqlite3.connect('login.db')
@@ -283,9 +273,9 @@ def getleaderboard():
     rows = c.execute('''SELECT * FROM user;''').fetchall()
     conn.commit()
     conn.close()
+
     return json.dumps( [dict(ix) for ix in rows] )
 
 
 if __name__ == '__main__':
     app.run(debug=True) # Run with flask run --host=0.0.0.0 to connect to android device
-    
